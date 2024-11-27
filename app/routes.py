@@ -2,7 +2,8 @@ from flask import render_template, request, redirect, url_for, flash
 from flask_login import login_user, logout_user, current_user, login_required
 from app.models import User
 from app import app, db, bcrypt
-from app.forms import RegistrationForm, LoginForm
+from app.forms import RegistrationForm, LoginForm, ChangeForm
+
 
 @app.route('/')
 @app.route('/home')
@@ -23,6 +24,23 @@ def register():
         return redirect(url_for('login'))
     return render_template('register.html', form=form, title='Register')
 
+
+@app.route('/change', methods=['GET', 'POST'])
+def change():
+    form = ChangeForm()
+    if form.validate_on_submit():
+        old = current_user
+        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+        user = User(username=form.username.data, email=form.email.data, password=hashed_password)
+        db.session.add(user)
+        db.session.delete(old)
+        db.session.commit()
+        login_user(user)
+        flash('Вы успешно поменяли данные!!!', 'success')
+        return redirect(url_for('account'))
+    return render_template('change.html', form=form, title='Change')
+
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
@@ -38,10 +56,14 @@ def login():
     return render_template('login.html', form=form, title='Login')
 
 
+
+
+
 @app.route('/logout')
 def logout():
     logout_user()
     return redirect(url_for('home'))
+
 
 @app.route('/account')
 @login_required

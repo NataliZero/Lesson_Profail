@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 
 {% block title %}
-регистрация
+изменение данных пользователя
 {% endblock %}
 
 {% block content %}
-    <h1>Регистрация</h1>
-    <form   method="post" action="{{ url_for('register') }}">
+    <h1>изменение данных пользователя</h1>
+    <form   method="post" action="{{ url_for('change') }}">
             {{ form.hidden_tag() }}
             <div>
                 {{ form.username.label }}<br>
@@ -24,8 +24,12 @@
                 {{ form.confirm_password.label }}<br>
                 {{ form.confirm_password(size=64) }}
             </div>
+
             <div>
                 {{ form.submit() }}
             </div>
+        <p>
+            Действующие данные: {{ current_user }}
+        </p>
     </form>
 {% endblock %}
